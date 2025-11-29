@@ -30,7 +30,7 @@ export default function Contact() {
     setSubmitStatus('idle')
 
     try {
-      // Initialize EmailJS with your public key
+      // Get EmailJS credentials from environment variables
       const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID'
       const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID'
       const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY'
@@ -46,13 +46,16 @@ export default function Contact() {
         return
       }
       
-      await emailjs.sendForm(
+      // Send form using EmailJS
+      // Note: publicKey is passed as 4th parameter, no need to init separately
+      const result = await emailjs.sendForm(
         serviceId,
         templateId,
         formRef.current!,
         publicKey
       )
 
+      console.log('EmailJS success:', result)
       setSubmitStatus('success')
       setFormData({ name: '', email: '', message: '' })
       
@@ -62,6 +65,12 @@ export default function Contact() {
     } catch (error) {
       console.error('EmailJS error:', error)
       setSubmitStatus('error')
+      
+      // Show error details in console for debugging
+      if (error instanceof Error) {
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
+      }
       
       setTimeout(() => {
         setSubmitStatus('idle')
